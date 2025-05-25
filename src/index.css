@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .animate-draw {
+    animation: draw 6s ease-in-out forwards infinite;
+  }
+
+  @keyframes draw {
+    0% {
+      stroke-dashoffset: 1800;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .stroke-beige {
+    stroke: #e7dec8;
+  }
+}
