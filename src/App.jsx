@@ -1,15 +1,11 @@
 import Hero from './components/hero';
-import About from './components/sections/about';
-import Vision from './components/sections/vision';
-import GetInvolved from './components/sections/get-involved';
+import Dynamic from './components/dynamic';
 
 export default function App() {
   return (
-    <main className="scroll-smooth">
+    <main className="relative w-full h-[400vh] bg-[#fbf1c7] dark:bg-[#282828] text-[#3c3836] dark:text-[#ebdbb2]">
       <Hero />
-      <About />
-      <Vision />
-      <GetInvolved />
+      <Dynamic />
     </main>
   );
 }

@@ -1,9 +1,29 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
+const sections = [
+  {
+    title: "The future isn’t bloated.\nIt’s intentional.\nIt’s personal.\nIt starts with one input.",
+    description: "LumiOS is a new kind of personal operating system — minimal, powerful, and driven by your intent.",
+  },
+  {
+    title: "Why LumiOS?",
+    description: "Intuitive. Minimal. Personal. Your OS should reflect you — not a collection of ads, settings, or noise.",
+  },
+  {
+    title: "Built with Intention",
+    description: "Handcrafted using modern web technologies — fast, responsive, and optimized for focus.",
+  },
+  {
+    title: "Join the Movement",
+    description: "Open-source, community-driven. LumiOS is more than a product — it’s a philosophy.",
+  },
+];
+
 export default function Hero() {
-  const [inputFocused, setInputFocused] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const [inputFocused, setInputFocused] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-color-scheme: dark)');
@@ -13,168 +33,103 @@ export default function Hero() {
     return () => media.removeEventListener('change', updateTheme);
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const index = Math.round(window.scrollY / window.innerHeight);
+      setActiveIndex(Math.max(0, Math.min(sections.length - 1, index)));
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const orbGradient = isDark
-    ? 'radial-gradient(circle at center, rgba(148, 87, 255, 0.85) 0%, rgba(255, 236, 170, 0.55) 35%, transparent 75%)'
-    : 'radial-gradient(circle at center, rgba(244, 210, 255, 0.6) 0%, rgba(250, 230, 180, 0.4) 40%, transparent 70%)';
+    ? 'radial-gradient(circle at center, rgba(148, 87, 255, 0.85), rgba(255, 236, 170, 0.55), transparent)'
+    : 'radial-gradient(circle at center, rgba(244, 210, 255, 0.6), rgba(250, 230, 180, 0.4), transparent)';
 
   return (
-    <section
-      className={`
-        relative min-h-screen flex flex-col items-center justify-center px-6 text-center
-        overflow-hidden transition-colors duration-700 ease-in-out
-        ${isDark ? 'bg-[#282828] text-[#ebdbb2]' : 'bg-[#fbf1c7] text-[#3c3836]'}
-      `}
-    >
-      {/* Light Mode Overlay Blur to reduce yellow saturation */}
-      {!isDark && (
-        <div className="absolute inset-0 bg-white bg-opacity-100 backdrop-blur-[6px] z-0 pointer-events-none" />
-      )}
-
-      {/* ORB Glow — same behavior */}
+    <section className="relative w-full" style={{ height: `${sections.length * 100}vh` }}>
+      {/* ORB */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.6 }}
-        animate={{
-          opacity: inputFocused ? (isDark ? 0.6 : 0.7) : (isDark ? 0.3 : 0.4),
-          scale: inputFocused ? 1.25 : 0.9,
-        }}
-        transition={{
-          type: 'spring',
-          stiffness: 60,
-          damping: 18,
-        }}
-        className="absolute w-[950px] h-[950px] rounded-full z-0 pointer-events-none"
+        className="fixed top-1/2 left-1/2 w-[950px] h-[950px] rounded-full pointer-events-none z-0"
         style={{
-          top: '42%',
-          left: '50%',
           transform: 'translate(-50%, -50%)',
           background: orbGradient,
           filter: 'blur(160px)',
         }}
+        initial={{ opacity: 0, scale: 0.6 }}
+        animate={{
+          opacity: inputFocused ? 0.7 : 0.4,
+          scale: inputFocused ? 1.25 : 0.95,
+        }}
+        transition={{ type: 'spring', stiffness: 60, damping: 20 }}
       />
 
-      {inputFocused && (
-        <motion.div
-          animate={{ scale: [1.2, 1.25, 1.2] }}
-          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute w-[950px] h-[950px] rounded-full z-0 pointer-events-none"
-          style={{
-            top: '42%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            background: orbGradient,
-            filter: 'blur(160px)',
-            opacity: 0.2,
-          }}
-        />
-      )}
+      {/* Scroll-Based Text */}
+      <div className="fixed top-[25%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 w-full max-w-3xl px-6 text-center">
+        {sections.map((section, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 10 }}
+            animate={activeIndex === idx ? { opacity: 1, y: 0 } : { opacity: 0, y: -10 }}
+            transition={{ duration: 0.5 }}
+            className={`absolute inset-0 ${activeIndex === idx ? 'block' : 'hidden'}`}
+          >
+            <h1 className="text-4xl sm:text-6xl font-bold whitespace-pre-wrap mb-4 leading-tight tracking-tight">
+              {section.title}
+            </h1>
+            <p className="text-lg text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto">
+              {section.description}
+            </p>
+          </motion.div>
+        ))}
+      </div>
 
-      {/* Hero Text */}
-      <div className="relative z-10 max-w-3xl pt-10">
-        <motion.h1
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: 'easeInOut' }}
-          className="text-4xl sm:text-6xl font-bold leading-snug tracking-tight drop-shadow-sm"
-        >
-          The future isn’t bloated.<br />
-          It’s intentional.<br />
-          It’s personal.<br />
-          It starts with one input.
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.8, ease: 'easeInOut' }}
-          className="mt-6 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed"
-        >
-          LumiOS is a new kind of personal operating system — minimal, powerful, and driven by your intent.
-        </motion.p>
-
-        {/* Command Bar */}
-        <div className="mt-10 w-full max-w-xl mx-auto" role="form" aria-label="Command input">
+      {/* Fixed Command Bar + Button */}
+      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 z-10 w-full px-6 text-center">
+        <div className="mt-40 w-full max-w-xl mx-auto">
           <input
             type="text"
-            placeholder="Search LumiOS, run a command, type anything..."
             onFocus={() => setInputFocused(true)}
             onBlur={() => setInputFocused(false)}
+            placeholder="Search LumiOS, run a command, type anything..."
             className={`
-              w-full px-6 py-4 rounded-xl transition-all duration-200
-              border placeholder-neutral-500
+              w-full px-6 py-4 rounded-xl border placeholder-neutral-500 shadow-xl
               ${isDark
-                ? 'bg-[#1d2021] text-[#ebdbb2] border-[#3c3836] shadow-xl'
-                : 'bg-white text-[#3c3836] border-[#d5c4a1] shadow-md'}
+                ? 'bg-[#1d2021] text-[#ebdbb2] border-[#3c3836]'
+                : 'bg-white text-[#3c3836] border-[#d5c4a1]'}
               focus:outline-none focus:ring-2 focus:ring-[#d79921]
             `}
           />
         </div>
 
-        {/* CTA Button */}
         <motion.button
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: 'easeInOut' }}
-          className={`mt-8 px-6 py-2 rounded-full transition-all text-base font-medium shadow-md ${
+          className={`mt-6 px-6 py-2 rounded-full text-base font-medium shadow-md ${
             isDark
               ? 'bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945]'
               : 'bg-[#3c3836] text-[#fbf1c7] hover:bg-[#665c54]'
           }`}
-          onClick={() => window.open('https://github.com/yourusername/lumios', '_blank')}
+          onClick={() => window.open('https://github.com/eytin/lumi-os', '_blank')}
         >
           Join the Movement →
         </motion.button>
       </div>
 
-      {/* SVG Lines */}
-      <div className="absolute bottom-0 left-0 w-full h-40 overflow-hidden z-[1] pointer-events-none">
+      {/* Animated SVG Lines */}
+      <div className="fixed bottom-0 left-0 w-full h-40 pointer-events-none z-0">
         <svg
           viewBox="0 0 1440 320"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           preserveAspectRatio="none"
-          className="w-full h-full opacity-30"
+          className="w-full h-full animate-draw stroke-beige"
         >
           <path
-            d="M720,245.3C840,256,960,224,1080,202.7C1200,181,1320,171,1380,165.3L1440,160"
-            stroke="#928374"
+            d="M0,160L60,154.7C120,149,240,139,360,160C480,181,600,235,720,245.3C840,256,960,224,1080,202.7C1200,181,1320,171,1380,165.3L1440,160"
             strokeWidth="1"
-            strokeDasharray="300"
-            strokeDashoffset="600"
-          >
-            <animate
-              attributeName="stroke-dashoffset"
-              from="600"
-              to="0"
-              dur="5s"
-              repeatCount="indefinite"
-            />
-          </path>
-          <path
-            d="M720,245.3C600,235,480,181,360,160C240,139,120,149,60,154.7L0,160"
-            stroke="#928374"
-            strokeWidth="1"
-            strokeDasharray="300"
-            strokeDashoffset="600"
-          >
-            <animate
-              attributeName="stroke-dashoffset"
-              from="600"
-              to="0"
-              dur="5s"
-              repeatCount="indefinite"
-            />
-          </path>
+            fill="none"
+          />
         </svg>
       </div>
-
-      {/* Theme-aware Bottom Fade */}
-			<div
-				className={`
-					absolute bottom-0 left-0 w-full h-20 pointer-events-none z-[0]
-					bg-gradient-to-b
-					${isDark ? 'from-transparent to-[#282828]' : 'from-transparent to-white'}
-				`}
-			/>
     </section>
   );
 }

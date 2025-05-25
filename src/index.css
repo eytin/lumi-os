@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
+body {
+  scroll-behavior: smooth;
+  overscroll-behavior: none;
+}
+
 @layer utilities {
   .animate-draw {
     animation: draw 6s ease-in-out forwards infinite;
